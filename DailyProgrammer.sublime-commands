@@ -1,0 +1,6 @@
+[
+  {
+    "caption": "Daily Programmer: Start newest challenge",
+    "command": "newest_daily_programmer"
+  }
+]
