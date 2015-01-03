@@ -84,7 +84,7 @@ def startChallenge(window, title, url):
     filePath = os.path.join(folderPath, fileName)
 
     if not os.path.exists(folderPath):
-        os.mkdir(folderPath)
+        os.makedirs(folderPath)
         with open(filePath, "w") as f:
             f.write(contents)
 
