@@ -25,6 +25,7 @@ if __name__ == "__main__":
 
 readmeContents = \
 """[{challengeTitle}]({challengeUrl})
+
 {challengeDesc}
 """
 
@@ -43,7 +44,6 @@ def updateChallenges(challenges, limit):
     while after is not None:
         request = Request(
             "https://www.reddit.com/r/dailyprogrammer/new.json?limit=%s&after=%s" % (limit, after),
-            data=None, 
             headers={
                 'User-Agent': 'ST3 plugin for /r/DailyProgrammer'
             }
