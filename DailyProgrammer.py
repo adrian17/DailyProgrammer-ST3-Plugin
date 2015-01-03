@@ -100,7 +100,7 @@ def startChallenge(window, title, url, desc):
     readmePath = os.path.join(folderPath, "README.md")
 
     if not os.path.exists(folderPath):
-        os.mkdir(folderPath)
+        os.makedirs(folderPath)
         with open(filePath, "w") as f:
             f.write(contents)
         with open(readmePath, "w") as f:
