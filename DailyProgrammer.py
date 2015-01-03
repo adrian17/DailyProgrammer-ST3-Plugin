@@ -71,12 +71,13 @@ def getAllChallenges():
     config = sublime.load_settings('DailyProgrammer.sublime-settings')
     challenges = config.get("challenges", [])
 
-    challenges = updateChallenges(challenges, 100 if challenges==[] else 10)
+    updatedChallenges = updateChallenges(challenges, 100 if challenges==[] else 10)
 
-    config.set("challenges", challenges)
-    sublime.save_settings('DailyProgrammer.sublime-settings')
+    if challenges != updatedChallenges:
+        config.set("challenges", updatedChallenges)
+        sublime.save_settings('DailyProgrammer.sublime-settings')
 
-    return challenges
+    return updatedChallenges
 
 
 def startChallenge(window, title, url, desc):
