@@ -38,6 +38,9 @@ initialCursor = (6, 9)
 # valid characters for path
 validChars = '-_.()[]! abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
 
+# Needs updating when the data retrieved for challenges changes.
+challengeVersion = 2
+
 
 def checkIfConfigReady(window):
     if challengesPath == r"enter your path here!":
@@ -79,11 +82,16 @@ def updateChallenges(challenges, limit):
 def getAllChallenges():
     config = sublime.load_settings('DailyProgrammer.sublime-settings')
     challenges = config.get("challenges", [])
+    savedVersion = config.get("challenge_version", 0)
+
+    if challengeVersion != savedVersion:
+        challenges = [] # Force refresh to ensure all information retrieved
 
     updatedChallenges = updateChallenges(challenges, 100 if challenges == [] else 10)
 
     if challenges != updatedChallenges:
         config.set("challenges", updatedChallenges)
+        config.set("challenge_version", challengeVersion)
         sublime.save_settings('DailyProgrammer.sublime-settings')
 
     return updatedChallenges
