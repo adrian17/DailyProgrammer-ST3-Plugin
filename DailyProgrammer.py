@@ -38,6 +38,7 @@ initialCursor = (6, 9)
 # valid characters for path
 validChars = '-_.()[]! abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
 
+
 def checkIfConfigReady(window):
     if challengesPath == r"enter your path here!":
         window.open_file(__file__ + ":%s:%s" % (9, 42), sublime.ENCODED_POSITION)
@@ -61,7 +62,7 @@ def updateChallenges(challenges, limit):
         posts = [post["data"] for post in data["children"] if "challenge #" in post["data"]["title"].lower()]
         posts = [{
             "title": post["title"],
-            "desc" : post["selftext"],
+            "desc": post["selftext"],
             "url": post["url"]} for post in posts]
 
         challengeTitles = list(map(lambda c: c["title"], challenges))
@@ -74,11 +75,12 @@ def updateChallenges(challenges, limit):
 
     return newChallenges + challenges
 
+
 def getAllChallenges():
     config = sublime.load_settings('DailyProgrammer.sublime-settings')
     challenges = config.get("challenges", [])
 
-    updatedChallenges = updateChallenges(challenges, 100 if challenges==[] else 10)
+    updatedChallenges = updateChallenges(challenges, 100 if challenges == [] else 10)
 
     if challenges != updatedChallenges:
         config.set("challenges", updatedChallenges)
@@ -89,14 +91,14 @@ def getAllChallenges():
 
 def startChallenge(window, title, url, desc):
     contents = initialContents.format(
-        challengeTitle = title,
-        challengeUrl = url
+        challengeTitle=title,
+        challengeUrl=url
     )
 
     readme = readmeContents.format(
-        challengeTitle = title,
-        challengeUrl = url,
-        challengeDesc = desc
+        challengeTitle=title,
+        challengeUrl=url,
+        challengeDesc=desc
     )
 
     folderName = title[title.index("#")+1:]
@@ -127,16 +129,16 @@ class OldDailyProgrammerCommand(sublime_plugin.WindowCommand):
 
         self.window.show_quick_panel(
             challengeNames,
-            lambda i: startChallenge(self.window, challenges[i]["title"], challenges[i]["url"], challenges[i]["desc"]) if i != -1 else None)
+            lambda i: startChallenge(self.window, **challenges[i]) if i != -1 else None)
 
 
 class NewestDailyProgrammerCommand(sublime_plugin.WindowCommand):
     def run(self):
         if not checkIfConfigReady(self.window):
             return
-        
+
         challenges = getAllChallenges()
 
         newest = challenges[0]
 
-        startChallenge(self.window, newest["title"], newest["url"], newest["desc"])
+        startChallenge(self.window, **newest)
