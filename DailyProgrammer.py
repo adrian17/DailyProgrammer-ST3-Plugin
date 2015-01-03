@@ -10,7 +10,10 @@ challengesPath = r"C:\DailyProgrammerChallenges"
 
 fileName = "main.py"
 
-initialContents = """
+initialContents = \
+"""# {challengeTitle}
+# {challengeUrl}
+
 
 def main():
     pass
@@ -19,10 +22,6 @@ def main():
 if __name__ == "__main__":
     main()
 """
-
-commentStyle = "# "
-appendTitle = True
-appendUrl = True
 
 # initial cursor position after the file has been opened
 # remember that title and url will occupy extra two lines
@@ -51,13 +50,10 @@ class NewestDailyProgrammerCommand(sublime_plugin.WindowCommand):
         challengeTitle = newest["title"]
         challengeUrl = newest["url"]
 
-        contents = []
-        if appendTitle:
-            contents.append(commentStyle + challengeTitle)
-        if appendUrl:
-            contents.append(commentStyle + challengeUrl)
-        contents.append(initialContents)
-        contents = "\n".join(contents)
+        contents = initialContents.format(
+            challengeTitle = challengeTitle,
+            challengeUrl = challengeUrl
+        )
 
         folderName = challengeTitle[challengeTitle.index("#")+1:]
         folderName = "".join(c for c in folderName if c in validChars)
