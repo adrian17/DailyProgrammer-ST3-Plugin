@@ -57,8 +57,10 @@ def updateChallenges(challenges, limit):
             "desc" : post["selftext"],
             "url": post["url"]} for post in posts]
 
-        if any(post in challenges for post in posts):
-            posts = [post for post in posts if post not in challenges]
+        challengeTitles = list(map(lambda c: c["title"], challenges))
+        if any(post["title"] in challengeTitles for post in posts):
+            posts = [post for post in posts if post["title"] not in challengeTitles]
+            # we've encountered posts that are already stored, so no need to load older challenges
             after = None
 
         newChallenges = newChallenges + posts
