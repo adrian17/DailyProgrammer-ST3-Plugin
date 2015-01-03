@@ -23,6 +23,11 @@ if __name__ == "__main__":
     main()
 """
 
+readmeContents = \
+"""[{challengeTitle}]({challengeUrl})
+{challengeDesc}
+"""
+
 # initial cursor position after the file has been opened
 # remember that title and url will occupy extra two lines
 initialCursor = (6, 9)
@@ -49,6 +54,7 @@ def updateChallenges(challenges, limit):
         posts = [post["data"] for post in data["children"] if "challenge #" in post["data"]["title"].lower()]
         posts = [{
             "title": post["title"],
+            "desc" : post["selftext"],
             "url": post["url"]} for post in posts]
 
         if any(post in challenges for post in posts):
@@ -71,10 +77,16 @@ def getAllChallenges():
     return challenges
 
 
-def startChallenge(window, title, url):
+def startChallenge(window, title, url, desc):
     contents = initialContents.format(
         challengeTitle = title,
         challengeUrl = url
+    )
+
+    readme = readmeContents.format(
+        challengeTitle = title,
+        challengeUrl = url,
+        challengeDesc = desc
     )
 
     folderName = title[title.index("#")+1:]
@@ -82,11 +94,14 @@ def startChallenge(window, title, url):
 
     folderPath = os.path.join(challengesPath, folderName)
     filePath = os.path.join(folderPath, fileName)
+    readmePath = os.path.join(folderPath, "README.md")
 
     if not os.path.exists(folderPath):
         os.mkdir(folderPath)
         with open(filePath, "w") as f:
             f.write(contents)
+        with open(readmePath, "w") as f:
+            f.write(readme)
 
     window.open_file(filePath + ":%s:%s" % initialCursor, sublime.ENCODED_POSITION)
 
@@ -99,7 +114,8 @@ class OldDailyProgrammerCommand(sublime_plugin.WindowCommand):
 
         self.window.show_quick_panel(
             challengeNames,
-            lambda i: startChallenge(self.window, challenges[i]["title"], challenges[i]["url"]) if i != -1 else None)
+            lambda i: startChallenge(self.window, challenges[i]["title"], challenges[i]["url"], challenges[i]["desc"]) if i != -1 else None)
+
 
 class NewestDailyProgrammerCommand(sublime_plugin.WindowCommand):
     def run(self):
@@ -107,4 +123,4 @@ class NewestDailyProgrammerCommand(sublime_plugin.WindowCommand):
 
         newest = challenges[0]
 
-        startChallenge(self.window, newest["title"], newest["url"])
+        startChallenge(self.window, newest["title"], newest["url"], newest["desc"])
