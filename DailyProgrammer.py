@@ -6,7 +6,7 @@ import json
 
 # ============== CONFIG ===============
 
-challengesPath = r"C:\DailyProgrammerChallenges"
+challengesPath = r"enter your path here!"
 
 fileName = "main.py"
 
@@ -37,6 +37,13 @@ initialCursor = (6, 9)
 
 # valid characters for path
 validChars = '-_.()[]! abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+
+def checkIfConfigReady(window):
+    if challengesPath == r"enter your path here!":
+        window.open_file(__file__ + ":%s:%s" % (9, 42), sublime.ENCODED_POSITION)
+        return False
+    return True
+
 
 def updateChallenges(challenges, limit):
     newChallenges = []
@@ -111,6 +118,9 @@ def startChallenge(window, title, url, desc):
 
 class OldDailyProgrammerCommand(sublime_plugin.WindowCommand):
     def run(self):
+        if not checkIfConfigReady(self.window):
+            return
+
         challenges = getAllChallenges()
 
         challengeNames = list(map(lambda challenge: challenge["title"], challenges))
@@ -122,6 +132,9 @@ class OldDailyProgrammerCommand(sublime_plugin.WindowCommand):
 
 class NewestDailyProgrammerCommand(sublime_plugin.WindowCommand):
     def run(self):
+        if not checkIfConfigReady(self.window):
+            return
+        
         challenges = getAllChallenges()
 
         newest = challenges[0]
