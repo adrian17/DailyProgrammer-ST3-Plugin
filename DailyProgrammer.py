@@ -32,38 +32,79 @@ initialCursor = (6, 9)
 # valid characters for path
 validChars = '-_.()[]! abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
 
-class NewestDailyProgrammerCommand(sublime_plugin.WindowCommand):
-    def run(self):
-
+def updateChallenges(challenges, limit):
+    newChallenges = []
+    after = ""
+    while after is not None:
         request = Request(
-            "https://www.reddit.com/r/dailyprogrammer/new.json", 
+            "https://www.reddit.com/r/dailyprogrammer/new.json?limit=%s&after=%s" % (limit, after),
             data=None, 
             headers={
                 'User-Agent': 'ST3 plugin for /r/DailyProgrammer'
             }
         )
-
         data = urlopen(request).readall()
-        posts = json.loads(data.decode())["data"]["children"]
-        newest = [post["data"] for post in posts if "Challenge #" in post["data"]["title"]][0]
+        data = json.loads(data.decode())["data"]
+        after = data["after"]
+        posts = [post["data"] for post in data["children"] if "challenge #" in post["data"]["title"].lower()]
+        posts = [{
+            "title": post["title"],
+            "url": post["url"]} for post in posts]
 
-        challengeTitle = newest["title"]
-        challengeUrl = newest["url"]
+        if any(post in challenges for post in posts):
+            posts = [post for post in posts if post not in challenges]
+            after = None
 
-        contents = initialContents.format(
-            challengeTitle = challengeTitle,
-            challengeUrl = challengeUrl
-        )
+        newChallenges = newChallenges + posts
 
-        folderName = challengeTitle[challengeTitle.index("#")+1:]
-        folderName = "".join(c for c in folderName if c in validChars)
+    return newChallenges + challenges
 
-        folderPath = os.path.join(challengesPath, folderName)
-        filePath = os.path.join(folderPath, fileName)
+def getAllChallenges():
+    config = sublime.load_settings('DailyProgrammer.sublime-settings')
+    challenges = config.get("challenges", [])
 
-        if not os.path.exists(folderPath):
-            os.mkdir(folderPath)
-            with open(filePath, "w") as f:
-                f.write(contents)
+    challenges = updateChallenges(challenges, 100 if challenges==[] else 10)
 
-        self.window.open_file(filePath + ":%s:%s" % initialCursor, sublime.ENCODED_POSITION)
+    config.set("challenges", challenges)
+    sublime.save_settings('DailyProgrammer.sublime-settings')
+
+    return challenges
+
+
+def startChallenge(window, title, url):
+    contents = initialContents.format(
+        challengeTitle = title,
+        challengeUrl = url
+    )
+
+    folderName = title[title.index("#")+1:]
+    folderName = "".join(c for c in folderName if c in validChars)
+
+    folderPath = os.path.join(challengesPath, folderName)
+    filePath = os.path.join(folderPath, fileName)
+
+    if not os.path.exists(folderPath):
+        os.mkdir(folderPath)
+        with open(filePath, "w") as f:
+            f.write(contents)
+
+    window.open_file(filePath + ":%s:%s" % initialCursor, sublime.ENCODED_POSITION)
+
+
+class OldDailyProgrammerCommand(sublime_plugin.WindowCommand):
+    def run(self):
+        challenges = getAllChallenges()
+
+        challengeNames = list(map(lambda challenge: challenge["title"], challenges))
+
+        self.window.show_quick_panel(
+            challengeNames,
+            lambda i: startChallenge(self.window, challenges[i]["title"], challenges[i]["url"]) if i != -1 else None)
+
+class NewestDailyProgrammerCommand(sublime_plugin.WindowCommand):
+    def run(self):
+        challenges = getAllChallenges()
+
+        newest = challenges[0]
+
+        startChallenge(self.window, newest["title"], newest["url"])

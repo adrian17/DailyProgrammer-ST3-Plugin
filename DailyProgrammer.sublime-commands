@@ -1,6 +1,10 @@
 [
   {
-    "caption": "Daily Programmer: Start newest challenge",
+    "caption": "Daily Programmer: Newest challenge",
     "command": "newest_daily_programmer"
+  },
+  {
+    "caption": "Daily Programmer: Old challenge",
+    "command": "old_daily_programmer"
   }
 ]
