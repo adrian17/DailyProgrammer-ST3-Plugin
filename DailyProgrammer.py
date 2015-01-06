@@ -120,7 +120,7 @@ def startChallenge(window, title, url, desc):
         os.makedirs(folderPath)
         with open(filePath, "w") as f:
             f.write(contents)
-        with open(readmePath, "w") as f:
+        with open(readmePath, "w", encoding="utf-8") as f:
             f.write(readme)
 
     window.open_file(filePath + ":%s:%s" % initialCursor, sublime.ENCODED_POSITION)
